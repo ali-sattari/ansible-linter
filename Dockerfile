@@ -2,12 +2,15 @@ FROM python:2-alpine
 LABEL author="Ali Sattari <ali.sattari@gmail.com>"
 
 RUN apk update \
-    && apk add --no-cache ansible git gcc binutils gcc libc-dev libffi-dev libtool make openssl-dev \
+    && apk add --no-cache binutils gcc libc-dev libffi-dev libtool make openssl-dev \
     && pip2 install ansible-lint
 
-RUN mkdir -p /lint/ansible /code \
-    && git clone https://github.com/ansible/galaxy-lint-rules.git /lint/ansible
+RUN apk del binutils gcc libc-dev libffi-dev libtool make openssl-dev \
+    && rm -rf /root/.cache/
 
+ADD https://github.com/ansible/galaxy-lint-rules/archive/master.zip /lint/ansible
+
+RUN mkdir /code
 VOLUME "/code"
 
 ENTRYPOINT ["/usr/local/bin/ansible-lint"]
